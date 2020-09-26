@@ -18,7 +18,7 @@ public class WordsFacade {
     private final WordsRepository wordsRepository;
 
     @TimeMeasurement(value = "Words translated in {} ms. Pack size: {}", argIndexes = {0}, methods = {Method.SIZE})
-    public final Collection<WordWithTranslation> translate(final Collection<Word> words){
+    public Collection<WordWithTranslation> translate(final Collection<Word> words){
         return words.stream()
                 .map(this::getWordWithTranslation)
                 .filter(wwt -> wwt.getTranslation().isPresent())
