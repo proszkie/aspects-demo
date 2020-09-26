@@ -12,6 +12,10 @@ repositories {
 	mavenCentral()
 }
 
+configurations {
+	runtimeAgent
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -20,6 +24,9 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok:1.18.12'
 	annotationProcessor 'org.projectlombok:lombok:1.18.12'
 
+	runtimeAgent "org.aspectj:aspectjweaver"
+	runtimeAgent "org.springframework:spring-instrument"
+
 	testCompileOnly 'org.projectlombok:lombok:1.18.12'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
@@ -27,6 +34,24 @@ dependencies {
 	}
 }
 
+bootRun {
+	doFirst {
+		// Ensure that all of the agents we need to load at run-time happen for tests
+		configurations.runtimeAgent.each {
+			File jarFile ->
+				jvmArgs "-javaagent:${jarFile.absolutePath}"
+		}
+	}
+}
+
 test {
 	useJUnitPlatform()
+
+	doFirst {
+		// Ensure that all of the agents we need to load at run-time happen for tests
+		configurations.runtimeAgent.each {
+			File jarFile ->
+				jvmArgs "-javaagent:${jarFile.absolutePath}"
+		}
+	}
 }

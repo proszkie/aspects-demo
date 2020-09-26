@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 @Aspect
-@Component
 @Slf4j
 public class LogTimeAspect {
 
@@ -23,7 +22,7 @@ public class LogTimeAspect {
     }
 
     @Around("timeMeasurement(timeMeasurement)")
-    Object measureTime(final ProceedingJoinPoint pjp, final TimeMeasurement timeMeasurement) throws Throwable {
+    public Object measureTime(final ProceedingJoinPoint pjp, final TimeMeasurement timeMeasurement) throws Throwable {
         final String logTemplate = timeMeasurement.value();
         final int[] argIndexes = timeMeasurement.argIndexes();
         final Method[] methods = timeMeasurement.methods();
