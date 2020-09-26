@@ -5,7 +5,7 @@ import com.proszkie.aspectsdemo.domain.WordWithTranslation;
 import lombok.Value;
 
 @Value
-public class WordWithTranslationDto {
+class WordWithTranslationDto {
     WordDto word;
     WordDto translation;
 

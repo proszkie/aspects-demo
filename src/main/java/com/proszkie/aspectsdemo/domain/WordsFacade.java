@@ -1,5 +1,7 @@
 package com.proszkie.aspectsdemo.domain;
 
+import com.proszkie.aspectsdemo.logging.Method;
+import com.proszkie.aspectsdemo.logging.TimeMeasurement;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StopWatch;
@@ -15,19 +17,12 @@ public class WordsFacade {
     private final WordsTranslator wordsTranslator;
     private final WordsRepository wordsRepository;
 
+    @TimeMeasurement(value = "Words translated in {} ms. Pack size: {}", argIndexes = {0}, methods = {Method.SIZE})
     public final Collection<WordWithTranslation> translate(final Collection<Word> words){
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        final List<WordWithTranslation> wordsWithTranslations = words.stream()
+        return words.stream()
                 .map(this::getWordWithTranslation)
                 .filter(wwt -> wwt.getTranslation().isPresent())
                 .collect(Collectors.toList());
-
-        stopWatch.stop();
-        log.info("Words translated in {} ms. Pack size: {}", stopWatch.getTotalTimeMillis(), words.size());
-
-        return wordsWithTranslations;
     }
 
     private WordWithTranslation getWordWithTranslation(final Word word) {
