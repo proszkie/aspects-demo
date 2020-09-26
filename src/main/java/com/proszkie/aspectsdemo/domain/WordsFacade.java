@@ -13,16 +13,14 @@ import java.util.stream.Collectors;
 public class WordsFacade {
 
     private final WordsTranslator wordsTranslator;
+    private final WordsRepository wordsRepository;
 
     public final Collection<WordWithTranslation> translate(final Collection<Word> words){
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         final List<WordWithTranslation> wordsWithTranslations = words.stream()
-                .map(word -> WordWithTranslation.builder()
-                        .word(word)
-                        .translation(wordsTranslator.translate(word))
-                        .build())
+                .map(this::getWordWithTranslation)
                 .filter(wwt -> wwt.getTranslation().isPresent())
                 .collect(Collectors.toList());
 
@@ -30,5 +28,27 @@ public class WordsFacade {
         log.info("Words translated in {} ms. Pack size: {}", stopWatch.getTotalTimeMillis(), words.size());
 
         return wordsWithTranslations;
+    }
+
+    private WordWithTranslation getWordWithTranslation(final Word word) {
+        final Word translation = wordsRepository.getTranslationForWordId(word.getId())
+                .orElseGet(() -> translateAndCache(word));
+
+        return WordWithTranslation.builder()
+                .word(word)
+                .translation(translation)
+                .build();
+    }
+
+    private Word translateAndCache(final Word word) {
+        final Word t = wordsTranslator.translate(word);
+        cache(word, t);
+        return t;
+    }
+
+    private void cache(final Word word, final Word t) {
+        if (!t.equals(Word.NULL_WORD)) {
+            wordsRepository.saveWordWithTranslation(word, t);
+        }
     }
 }
