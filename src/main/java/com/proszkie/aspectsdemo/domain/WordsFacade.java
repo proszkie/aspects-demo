@@ -41,7 +41,13 @@ public class WordsFacade {
     }
 
     private Word translateAndCache(final Word word) {
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
         final Word t = wordsTranslator.translate(word);
+
+        stopWatch.stop();
+        log.info("Word with id {} has been translated in {} ms.", word.getId(), stopWatch.getTotalTimeMillis());
         cache(word, t);
         return t;
     }
